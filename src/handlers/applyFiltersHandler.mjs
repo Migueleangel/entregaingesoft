@@ -1,18 +1,23 @@
 import applyFilters from "../controllers/filters/applyFilters.mjs";
 import Boom from "@hapi/boom";
 import HttpStatusCodes from "http-status-codes";
-const applyFilterHandler = async (req,res,next) => {
-try{
+import express  from "express";
 
-    const body = req.body;
-    const response = await applyFilters(body);
-    return res.status(HttpStatusCodes.OK).json(response);
+const applyFiltersHandler = express.Router();
+
+applyFiltersHandler.post("/", async (req, res, next) => {
     
-}catch (error){
-    const err = Boom.isBoom(error) ? error: Boom.internal(error);
-    next(err);
-}
+    try {
+        const body = req.body;
+        const files = req.files;
+        console.log(files)
+        const response = await applyFilters(body,files);
+        return res.status(HttpStatusCodes.OK).json(response);
 
-}
+    } catch (error) {
+        const err = Boom.isBoom(error) ? error : Boom.internal(error);
+        next(err);
 
-export default applyFilterHandler;
+    }
+});
+export default applyFiltersHandler;
