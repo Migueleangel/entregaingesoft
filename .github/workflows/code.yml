@@ -18,7 +18,7 @@ jobs:
               run: ls
 
             - name: Setup Node JS
-              uses: action/setup-node@v3
+              uses: actions/setup-node@v3
               with:
                 node-version: 18
 
@@ -27,5 +27,7 @@ jobs:
 
             - name: Check code int
               run: npm run lint
-              continue-on-error: false
+              continue-on-error: false 
+
+
 
