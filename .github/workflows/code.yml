@@ -29,5 +29,9 @@ jobs:
               run: npm run lint
               continue-on-error: false 
 
+            - name: Check code coverage
+              run: npm run test
+              continue-on-error: false
+
 
 
