@@ -1,9 +1,9 @@
 import {
-  describe, test, expect, jest,
+  describe, test, expect, jest, beforeEach, afterEach,
 } from '@jest/globals';
 import ProcessRepository from '../../repositories/ProcessRepository.mjs';
 import ProcessService from '../ProcessService.mjs';
-import MinioService from '../MinioService.mjs';
+import ProcessModel from '../../models/Process.mjs';
 
 const suma = (a, b) => a + b;
 
@@ -50,5 +50,32 @@ describe('processService test', () => {
       });
     const process = await processService.applyFilters(payload);
     expect(process).toMatchObject(expectedProcess);
+  });
+});
+
+describe('ProcessRepository', () => {
+  let processRepository;
+
+  beforeEach(() => {
+    processRepository = new ProcessRepository();
+  });
+
+  afterEach(() => {
+    // Limpia cualquier estado que pueda haber quedado después de cada prueba.
+  });
+
+  test('save method should save a process and return it', async () => {
+    const processData = {
+      filters: ['filter1', 'filter2'],
+    };
+
+    // Suponemos que ProcessModel tiene un método 'save' que retorna una nueva instancia con un ID.
+    ProcessModel.prototype.save = jest.fn().mockResolvedValueOnce({ ...processData, id: '6532fadd342d6c980b39643c' });
+
+    const savedProcess = await processRepository.save(processData);
+
+    expect(savedProcess).toEqual(expect.objectContaining(processData));
+    expect(savedProcess.id).toHaveLength(24);
+    expect(ProcessModel.prototype.save).toHaveBeenCalledWith();
   });
 });
