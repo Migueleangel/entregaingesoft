@@ -95,7 +95,6 @@ describe('applyFiltersHandler', () => {
     console.log('Llamadas a applyFilters:', mockRequest.container.processService.applyFilters.mock.calls);
     console.log('Llamadas a next:', mockNext.mock.calls);
 
-    // Asegúrate de que la llamada a next con Error se haya hecho correctamente
     expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
   });
 });

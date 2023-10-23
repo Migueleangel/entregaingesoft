@@ -32,5 +32,12 @@ class ProcessService {
     console.log(imagesNames);
     return process;
   }
+
+  async getFilters(id) {
+    // Metodo para tomar el id
+
+    const process = await this.processRepository.find(id);
+    return process;
+  }
 }
 export default ProcessService;

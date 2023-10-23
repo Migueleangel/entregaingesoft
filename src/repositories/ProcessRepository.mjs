@@ -8,6 +8,12 @@ class ProcessRepository {
     await newProcess.save();
     return newProcess;
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  find(id) {
+    const newProcess = ProcessModel.findById(id);
+    return newProcess;
+  }
 }
 
 export default ProcessRepository;

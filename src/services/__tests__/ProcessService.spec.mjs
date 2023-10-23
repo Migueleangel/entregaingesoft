@@ -69,7 +69,7 @@ describe('ProcessRepository', () => {
       filters: ['filter1', 'filter2'],
     };
 
-    // Suponemos que ProcessModel tiene un método 'save' que retorna una nueva instancia con un ID.
+    // ProcessModel tiene un método 'save' que retorna una nueva instancia con un ID.
     ProcessModel.prototype.save = jest.fn().mockResolvedValueOnce({ ...processData, id: '6532fadd342d6c980b39643c' });
 
     const savedProcess = await processRepository.save(processData);
