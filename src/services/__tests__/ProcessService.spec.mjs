@@ -12,12 +12,12 @@ describe('Test suma', () => {
     expect(suma(1, 2)).toBe(3);
   });
 
-  test('suma 1 + 2 = 4', () => {
+  test('suma 1 + 3 = 4', () => {
     expect(suma(1, 3)).toBe(4);
   });
 });
 
-describe('processService test', () => {
+describe('ProcessService tests', () => {
   const processRepository = new ProcessRepository();
   const minioService = {
     saveImage: jest.fn()
@@ -25,13 +25,13 @@ describe('processService test', () => {
   };
   const processService = new ProcessService({ processRepository, minioService });
 
-  test('Test applyFilters function with invalid payload', () => {
+  test('applyFilters function with invalid payload', () => {
     expect(processService.applyFilters()).rejects.toThrow();
     expect(processService.applyFilters({})).rejects.toThrow();
     expect(processService.applyFilters({ filters: [] })).rejects.toThrow();
   });
 
-  test('Test applyFilters function with valid payload', async () => {
+  test('applyFilters function with valid payload', async () => {
     const payload = {
       filters: ['negative'],
       images: [{ originalname: 'image1.png', buffer: Buffer.from('') }],
@@ -40,20 +40,29 @@ describe('processService test', () => {
       id: '1234',
       filters: payload.filters,
       images: payload.images,
-
     };
     processRepository.save = jest.fn()
-      .mockImplementationOnce(() => {
-        // eslint-disable-next-line
-        console.log('se llama esta funcion mock ');
-        return expectedProcess;
-      });
+      .mockImplementationOnce(() => expectedProcess);
     const process = await processService.applyFilters(payload);
     expect(process).toMatchObject(expectedProcess);
   });
+
+  test('getFilters function', async () => {
+    const processId = '1234';
+    const expectedProcess = {
+      id: processId,
+      filters: ['filter1', 'filter2'],
+    };
+
+    processRepository.find = jest.fn()
+      .mockImplementationOnce(() => expectedProcess);
+
+    const process = await processService.getFilters(processId);
+    expect(process).toEqual(expectedProcess);
+  });
 });
 
-describe('ProcessRepository', () => {
+describe('ProcessRepository tests', () => {
   let processRepository;
 
   beforeEach(() => {
@@ -69,7 +78,6 @@ describe('ProcessRepository', () => {
       filters: ['filter1', 'filter2'],
     };
 
-    // ProcessModel tiene un método 'save' que retorna una nueva instancia con un ID.
     ProcessModel.prototype.save = jest.fn().mockResolvedValueOnce({ ...processData, id: '6532fadd342d6c980b39643c' });
 
     const savedProcess = await processRepository.save(processData);
@@ -77,5 +85,19 @@ describe('ProcessRepository', () => {
     expect(savedProcess).toEqual(expect.objectContaining(processData));
     expect(savedProcess.id).toHaveLength(24);
     expect(ProcessModel.prototype.save).toHaveBeenCalledWith();
+  });
+
+  test('find method should find a process by ID', () => {
+    const processId = '1234';
+    const expectedProcess = {
+      id: processId,
+      filters: ['filter1', 'filter2'],
+    };
+
+    ProcessModel.findById = jest.fn()
+      .mockImplementationOnce(() => expectedProcess);
+
+    const foundProcess = processRepository.find(processId);
+    expect(foundProcess).toEqual(expectedProcess);
   });
 });

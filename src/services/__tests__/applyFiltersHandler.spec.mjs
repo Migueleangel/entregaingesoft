@@ -4,7 +4,7 @@ import {
   describe, it, expect, jest, afterEach,
 } from '@jest/globals';
 import HttpStatusCodes from 'http-status-codes';
-import applyFiltersHandler from '../../handlers/applyFiltersHandler.mjs';
+import applyFiltersHandler from '../../handlers/filters/applyFiltersHandler.mjs';
 
 // applyFiltersHandler.spec.mjs
 
