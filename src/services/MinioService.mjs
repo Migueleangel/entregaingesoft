@@ -50,8 +50,6 @@ class MinioService {
         throw Boom.badRequest('Invalid image extension');
       }
 
-      // const fileName = `${v4()}.${extension}`;
-
       await this.conn.send(new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: originalname,
@@ -74,7 +72,7 @@ class MinioService {
       const url = await getSignedUrl(this.conn, command, { expiresIn: 86400 });
       return url;
     } catch (error) {
-      throw Boom.isBoom(error) ? error : Boom.internal('Error, it was not possible to create the signed url', error);
+      throw Boom.isBoom(error) ? error : Boom.internal('ERROR NOT FOUND', error);
     }
   }
 }

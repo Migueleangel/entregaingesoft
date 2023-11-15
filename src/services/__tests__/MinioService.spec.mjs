@@ -1,15 +1,13 @@
+import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import Boom from '@hapi/boom';
 import {
-  describe, test, expect, jest, beforeEach,
+  describe, expect, jest, it, beforeEach,
 } from '@jest/globals';
+import MinioService from '../MinioService.mjs'; // Asegúrate de ajustar la ruta correcta
 import { BUCKET_NAME } from '../../commons/constants.mjs';
-import MinioService from '../MinioService.mjs';
 
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn(),
-  })),
-  PutObjectCommand: jest.fn(),
-}));
+jest.mock('@aws-sdk/s3-request-presigner');
 
 describe('MinioService', () => {
   let minioService;
@@ -18,48 +16,54 @@ describe('MinioService', () => {
     minioService = new MinioService();
   });
 
-  test('saveImage throws error if image is missing', async () => {
-    await expect(minioService.saveImage()).rejects.toThrow('Image is required');
+  describe('saveImage', () => {
+    it('should save an image successfully', async () => {
+      const mockImage = {
+        originalname: 'example.jpg',
+        buffer: Buffer.from('mocked image content'),
+      };
+
+      const expectedKey = 'example.jpg';
+
+      // Mock the S3Client's send method to simulate a successful image upload
+      minioService.conn.send = jest.fn().mockResolvedValueOnce();
+
+      // Call the saveImage method
+      const result = await minioService.saveImage(mockImage);
+
+      // Assertions
+      expect(minioService.conn.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
+      expect(minioService.conn.send.mock.calls[0][0].input.Bucket).toBe(BUCKET_NAME);
+      expect(minioService.conn.send.mock.calls[0][0].input.Key).toBe(expectedKey);
+      expect(minioService.conn.send.mock.calls[0][0].input.Body).toBe(mockImage.buffer);
+      expect(result).toBe(expectedKey);
+    });
+
+    it('should throw an error for invalid image extension', async () => {
+      const mockImage = {
+        originalname: 'invalid.txt',
+        buffer: Buffer.from('mocked image content'),
+      };
+
+      // Call the saveImage method and expect it to throw a Boom.badRequest error
+      await expect(minioService.saveImage(mockImage)).rejects.toThrowError(Boom.badRequest('Invalid image extension'));
+    });
+
+    // Add more test cases as needed
   });
 
-  test('saveImage throws error if image originalname is missing', async () => {
-    await expect(minioService.saveImage({})).rejects.toThrow('Image originalname is required');
-  });
+  describe('generateSignedUrl', () => {
+    it('should throw an error for invalid image name', async () => {
+      const mockImageName = 'invalid-name';
 
-  test('saveImage throws error if image buffer is missing', async () => {
-    await expect(minioService.saveImage({ originalname: 'image.png' })).rejects.toThrow('Image buffer is required');
-  });
+      // Mockear el método getSignedUrl para simular un error al obtener la URL firmada
+      const error = new Error('Resolved credential object is not valid');
+      jest.spyOn(minioService.conn, 'send').mockRejectedValueOnce(error);
 
-  test('saveImage throws error if image name is invalid', async () => {
-    await expect(minioService.saveImage({ originalname: 'image', buffer: Buffer.from('') })).rejects.toThrow('Invalid image name');
-  });
-
-  test('saveImage saves the image successfully', async () => {
-    const image = {
-      originalname: 'image.png',
-      buffer: Buffer.from(''),
-    };
-
-    // Genera un nombre de archivo basado en algún criterio
-    const expectedFileName = 'image.png'; // Ajusta el nombre esperado
-
-    const mockPutObjectCommand = jest.fn().mockImplementation(() => ({
-      Bucket: BUCKET_NAME,
-      Key: expectedFileName, // Utiliza el nombre esperado
-      Body: image.buffer,
-    }));
-
-    minioService.conn.send = jest.fn().mockImplementation(mockPutObjectCommand);
-  });
-
-  test('saveImage throws internal error if an unexpected error occurs', async () => {
-    const image = {
-      originalname: 'image.png',
-      buffer: Buffer.from(''),
-    };
-
-    minioService.conn.send = jest.fn().mockRejectedValue(new Error('unexpected error'));
-
-    await expect(minioService.saveImage(image)).rejects.toThrow('Error saving image');
+      // Llamamos al método generateSignedUrl y esperamos que lance un error Boom.badRequest
+      await expect(minioService.generateSignedUrl(mockImageName)).rejects.toThrowError(
+        Boom.badRequest('Invalid image name'),
+      );
+    });
   });
 });

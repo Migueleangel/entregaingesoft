@@ -1,7 +1,6 @@
 import sharp from 'sharp';
 import { GREYSCALE_FILTER, BLUR_FILTER, NEGATIVE_FILTER } from '../commons/constants.mjs';
 import Filters from './Filters.mjs';
-import Status from './Status.mjs';
 
 class FilterssService {
   constructor({ processRepository, minioService }) {
@@ -12,14 +11,12 @@ class FilterssService {
   async Filterss(newImages) {
     newImages.images.map(async (image) => {
       const imageBuffer = await sharp(image.buffer).toBuffer();
-      const applyImgFilter = new Filters();
-      const status = new Status({ processRepository: this.processRepository });
+      const applyFilter = new Filters();
 
       image.filters.forEach((filter) => {
-        applyImgFilter.subscribe({
+        applyFilter.subscribe({
           imgId: image.id,
           filterId: filter.id,
-          status,
         });
       });
 
@@ -40,7 +37,7 @@ class FilterssService {
             buffer: imgBuffer,
           });
 
-          applyImgFilter.notify({ ...data, imgUrl });
+          applyFilter.notify({ ...data, imgUrl });
         }
         if (filter.name === NEGATIVE_FILTER) {
           const imgBuffer = await sharp(imageBuffer).negate({ alpha: false }).toBuffer();
@@ -50,7 +47,7 @@ class FilterssService {
             buffer: imgBuffer,
           });
 
-          applyImgFilter.notify({ ...data, imgUrl });
+          applyFilter.notify({ ...data, imgUrl });
         }
         if (filter.name === BLUR_FILTER) {
           const imgBuffer = await sharp(imageBuffer).blur(1 + 0.7 / 2).toBuffer();
@@ -60,7 +57,7 @@ class FilterssService {
             buffer: imgBuffer,
           });
 
-          applyImgFilter.notify({ ...data, imgUrl });
+          applyFilter.notify({ ...data, imgUrl });
         }
       });
     });
@@ -70,13 +67,6 @@ class FilterssService {
     await Promise.resolve(this.minioService.saveImage(image));
     const res = await Promise.resolve(this.minioService.generateSignedUrl(image.originalname));
     return res;
-  }
-
-  /* eslint-disable class-methods-use-this */
-  rename(originalname, filterName) {
-    const originalNameParts = originalname.split('.');
-    const extension = originalNameParts[1];
-    return `${originalNameParts[0]}-${filterName}.${extension}`;
   }
 }
 
