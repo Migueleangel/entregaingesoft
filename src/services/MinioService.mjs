@@ -15,7 +15,6 @@ class MinioService {
         credentials: {
           accessKeyId: MINIO_ACCESS_KEY,
           secretAccessKey: MINIO_SECRET_KEY,
-
         },
         endpoint: MINIO_HOST,
         forcePathStyle: true,

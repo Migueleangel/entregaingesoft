@@ -23,7 +23,7 @@ services:
       MINIO_ROOT_USER: migueleangel
       MINIO_ROOT_PASSWORD: fitnesvip1
     volumes:
-      - minio-volume:/data
+      - minio-data:/data
     networks:
       - processor-net
     command: server --console-address ":9001" /data
@@ -38,4 +38,4 @@ networks:
     driver: bridge
 
 volumes:
-  minio-volume:
+  minio-data:
