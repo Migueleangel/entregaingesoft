@@ -9,9 +9,9 @@ COPY package-lock.json .
 COPY /src ./src/
 ENV MONGO_URI mongodb+srv://miguelsotelo:fitnesvip1@cluster0.efkqoyw.mongodb.net/?retryWrites=true&w=majority
 ENV PORT 5001
-ENV MINIO_HOST=http://localhost:9000
-ENV MINIO_ACESS_KEY=migueleangel
-ENV MINIO_SECRET_KEY=fitnesvip1
+ENV MINIO_HOST http://localhost:9000
+ENV MINIO_ACESS_KEY migueleangel
+ENV MINIO_SECRET_KEY fitnesvip1
 EXPOSE 5001
 
 RUN npm install --production
