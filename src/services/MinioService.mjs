@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { v4 } from 'uuid';
 import Boom from '@hapi/boom';
-import { MINIO_ACESS_KEY, MINIO_HOST, MINIO_SECRET_KEY } from '../commons/env.mjs';
+import { MINIO_ACCESS_KEY, MINIO_HOST, MINIO_SECRET_KEY } from '../commons/env.mjs';
 import { BUCKET_NAME } from '../commons/constants.mjs';
 
 class MinioService {
@@ -13,9 +13,8 @@ class MinioService {
       this.conn = new S3Client({
         region: 'us-east-1',
         credentials: {
-          accessKeyId: MINIO_ACESS_KEY,
+          accessKeyId: MINIO_ACCESS_KEY,
           secretAccessKey: MINIO_SECRET_KEY,
-
         },
         endpoint: MINIO_HOST,
         forcePathStyle: true,
